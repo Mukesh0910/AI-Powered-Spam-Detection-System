@@ -1,13 +1,12 @@
 # app.py
-
 from flask import Flask, render_template, request
+import re
 import joblib
 import os
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import string
-
 # --- 1. Initialize Flask App ---
 app = Flask(__name__)
 
@@ -56,6 +55,14 @@ stop_words = set(stopwords.words('english'))
 
 # --- 4. Text Preprocessing Function (Must be IDENTICAL to train_model.py) ---
 def preprocess_text(text):
+    # Remove URLs (http, https, www)
+    text = re.sub(r'http\S+|www\.\S+', '', text)
+    # Remove email addresses
+    text = re.sub(r'\S+@\S+', '', text)
+    # Remove emojis and special unicode characters
+    text = re.sub(r'[^\x00-\x7F]+', '', text)
+    # Remove phone numbers
+    text = re.sub(r'\b\d{10,}\b|\b\d{3}[-.]?\d{3}[-.]?\d{4}\b', '', text)
     # Remove punctuation
     text = text.translate(str.maketrans('', '', string.punctuation))
     # Convert to lowercase
